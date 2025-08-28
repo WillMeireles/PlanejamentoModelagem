@@ -1,53 +1,61 @@
--- E um comentario 
-/*
-Comentario de multiplas linhas!
-*/
+CREATE SCHEMA ecommerce;
 
--- DDL - Criar - Create (Schemas, tabela)
-CREATE SCHEMA clinica; 
--- CREATE TABLE <SCHEMA>.<NOME_DA_TABELA>
-CREATE TABLE clinica.medico (
--- Informar Colunas 
--- NOME_DA_COLUNA TIPO_DE_DADO
--- PRIMARY KEY - CHAVE PRIMARIA 
--- GENERATED ALWAYS AS IDENTITY - A CHAVE PRIMARIA 
--- E CRIADA AUTOMATICAMENTE 
-id_medico INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
-nome TEXT NOT NULL, 
-crm TEXT NOT NULL,
-especialidade TEXT NOT NULL
+
+-- Criar tabela Cliente
+CREATE TABLE ecommerce.cliente (
+id_cliente INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+nome_completo TEXT NOT NULL,
+email TEXT NOT NULL,
+senha TEXT NOT NULL,
+telefone TEXT NOT NULL,
+data_cadastro TEXT NOT NULL 
 );
 
-CREATE TABLE clinica.paciente(
-id_paciente INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-nome TEXT NOT NULL,
-idade INT NOT NULL,
-data_nascimento DATE NOT NULL
+
+
+-- Criar tabela Pedido
+CREATE TABLE ecommerce.pedido(
+id_pedido INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+id_cliente INT NOT NULL,
+FOREIGN KEY (id_cliente)
+REFERENCES ecommerce.cliente(id_cliente),
+data_pedido TIMESTAMPTZ NOT NULL,
+valor_total NUMERIC (18,4) NOT NULL,
+status TEXT NOT NULL
 );
 
-CREATE TABLE clinica.clinica (
-id_clinica INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-nome TEXT NOT NULL,
+
+-- Criar tabela produto
+CREATE TABLE ecommerce.produto(
+id_produto INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+nome_produto TEXT NOT NULL,
 descricao TEXT NOT NULL,
-endereco TEXT
-);
-
-CREATE TABLE clinica.consulta (
-id_consulta INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-data TIMESTAMPTZ NOT NULL,
-valor NUMERIC (10,4),
-id_medico INT NOT NULL,
-FOREIGN KEY (id_medico) 
-REFERENCES clinica.medico(id_medico),
--- Maneira Abreviada 
-id_clinica INT NOT NULL REFERENCES clinica.clinica(id_clinica),
-id_paciente INT NOT NULL 
-REFERENCES clinica.paciente(id_paciente)
+preco NUMERIC (18,4) NOT NULL,
+estoque_disponivel INT NOT NULL, 
+imagem_url TEXT NOT NULL
 );
 
 
--- Apagar tablela - DROP
-DROP TABLE clinica.consulta; 
-DROP TABLE clinica.clinica;
-DROP TABLE clinica.paciente;
-DROP TABLE clinica.medico; 
+-- Criar tabela pagamento
+CREATE TABLE ecommerce.pagamento(
+id_pagamento INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+id_pedido INT NOT NULL,
+FOREIGN KEY (id_pedido)
+REFERENCES ecommerce.pedido(id_pedido),
+forma_pagamento TEXT NOT NULL,
+status TEXT NOT NULL,
+data_pagamento TIMESTAMPTZ NOT NULL
+);
+
+
+-- Criar tabela Item
+CREATE TABLE ecommerce.item(
+id_item INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+id_pedido INT NOT NULL, 
+FOREIGN KEY (id_pedido)
+REFERENCES ecommerce.pedido(id_pedido),
+id_produto INT NOT NULL,
+FOREIGN KEY (id_produto)
+REFERENCES ecommerce.produto(id_produto),
+quantidade INT NOT NULL 
+);
